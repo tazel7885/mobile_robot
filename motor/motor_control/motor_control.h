@@ -58,7 +58,3 @@ class Motor
     float err_speed_dot;
     float prev;
 };
-
-/* control function */
-
-void UpdateVel(geometry_msgs::Twist cmd_vel);
