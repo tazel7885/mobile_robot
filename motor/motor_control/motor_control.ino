@@ -1,15 +1,15 @@
 #include "motor_control.h"
 
 /* Declare Variable */
-#define motor_control_freqeuncy 10
+#define motor_control_freqeuncy 50
 #define odom_cal_freqeuncy 100
 
 double Time[2] = {0, };
 geometry_msgs::Pose2D odom;
 
 /* Motor Class Initialization */
-Motor Motor1(E1_CHA, E1_CHB, M1_DIR, M1_PWM, 20.0, 0.0, 0.0);
-Motor Motor2(E2_CHA, E2_CHB, M2_DIR, M2_PWM, 20.0, 0.0, 0.0);
+Motor Motor1(E1_CHA, E1_CHB, M1_DIR, M1_PWM, 10.0, 0.0, 5.0);
+Motor Motor2(E2_CHA, E2_CHB, M2_DIR, M2_PWM, 10.0, 0.0, 5.0);
 
 /* Ros */
 ros::NodeHandle nh;
@@ -22,10 +22,10 @@ void setup()
   Serial.begin(115200);
   nh.getHardware()->setBaud(115200);
 
-  attachInterrupt(E1_CHA, callback1, CHANGE);
-  attachInterrupt(E1_CHB, callback2, CHANGE);
-  attachInterrupt(E2_CHA, callback3, CHANGE);
-  attachInterrupt(E2_CHB, callback4, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(E1_CHA), callback1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(E1_CHB), callback2, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(E2_CHA), callback3, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(E2_CHB), callback4, CHANGE);
 
   odom.x = 0.0;
   odom.y = 0.0;
@@ -52,6 +52,7 @@ void loop()
   }
 
   nh.spinOnce();
+  delayMicroseconds(1);
 }
 
 /* Motor Velocity Update Function */
@@ -72,18 +73,20 @@ void UpdateVel(geometry_msgs::Twist cmd_vel)
 /* Motor Control Function */
 void motor_ISR(double t)
 {
-  Motor1.m_speed_ = Motor1.enPos_ * DistancePerCount / 0.01;
-  Motor1.SpeedControl(Motor1.ref_speed_);
+  Motor1.m_speed_ = Motor1.enPos_ * DistancePerCount / t;
+  Motor1.SpeedControl(Motor1.ref_speed_, t);
   
-  Motor2.m_speed_ = Motor2.enPos_ * DistancePerCount / 0.01;
-  Motor2.SpeedControl(Motor2.ref_speed_);
-
-  Motor1.enPos_ = Motor2.enPos_ = 0;
+  Motor2.m_speed_ = Motor2.enPos_ * DistancePerCount / t;
+  Motor2.SpeedControl(Motor2.ref_speed_, t);
 
   /* Debug */
-  // Serial.println("--------------------------------------");
-  // Motor1.SerialRead();
-  // Motor1.EncoderCounter();
+  Serial.println("--------------------------------------");
+  Motor1.SerialRead();
+  Motor1.EncoderCounter();
+  Motor2.SerialRead();
+  Motor2.EncoderCounter();  
+  
+  Motor1.enPos_ = Motor2.enPos_ = 0;
 }
 
 /* Calculate Odometry Function */

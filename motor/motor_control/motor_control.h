@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <Arduino.h>
-#include <TimerThree.h>
+
 /* ros_communication msg */
 #include <ros.h>
 #include <std_msgs/Float32.h>
@@ -12,18 +12,18 @@
 /* Pin information */
 #define E1_CHA 2
 #define E1_CHB 3
-#define M1_DIR A2
-#define M1_PWM A3
+#define M1_DIR 8
+#define M1_PWM 9
 
 #define E2_CHA 18
 #define E2_CHB 19
-#define M2_DIR A6
-#define M2_PWM A7
+#define M2_DIR 10
+#define M2_PWM 11
 
 /* Mobile and Wheel information */
 #define EncoderCountsPerWheel 1976  // per 1 cycle
-#define wheelradius 0.076           // units : m
-#define wheelbase 1000              // units : m/s
+#define wheelradius 0.115           // units : m
+#define wheelbase 0.388              // units : m/s
 
 #define M_PI 3.14159265358979323846
 
@@ -40,7 +40,7 @@ class Motor
     ~Motor();
     void EnCHA_ISR();
     void EnCHB_ISR();
-    void SpeedControl(float ref_speed);
+    void SpeedControl(float ref_speed, double t);
     void EncoderCounter();
     void SerialRead();
 

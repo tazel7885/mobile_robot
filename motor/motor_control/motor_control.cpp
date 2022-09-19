@@ -34,16 +34,16 @@ void Motor::EnCHA_ISR()
   // a low-to-high edge on channel A
   if (digitalRead(E_CHA_) == HIGH){
     if (digitalRead(E_CHB_) == LOW)
-      enPos_ = enPos_ - 1;
-    else
       enPos_ = enPos_ + 1;
+    else
+      enPos_ = enPos_ - 1;
   }
   // must be a high-to-low edge on channel A
   else{
     if (digitalRead(E_CHB_) == HIGH)
-      enPos_ = enPos_ - 1;
-    else
       enPos_ = enPos_ + 1;
+    else
+      enPos_ = enPos_ - 1;
   }
 }
 
@@ -52,24 +52,24 @@ void Motor::EnCHB_ISR()
   // a low-to-high edge on channel B
   if (digitalRead(E_CHB_) == HIGH){
     if (digitalRead(E_CHA_) == HIGH)
-      enPos_ = enPos_ - 1;
-    else
       enPos_ = enPos_ + 1;
+    else
+      enPos_ = enPos_ - 1;
   }
   // must be a high-to-low edge on channel B
   else{
     if (digitalRead(E_CHA_) == LOW)
-      enPos_ = enPos_ - 1;
-    else
       enPos_ = enPos_ + 1;
+    else
+      enPos_ = enPos_ - 1;
   }
 }
 
-void Motor::SpeedControl(float ref_spd)
+void Motor::SpeedControl(float ref_spd, double t)
 {
   float up, ui, ud, usum = 0;
   int u_in = 0;
-  float dt = 0.01;
+  double dt = t;
 
   ref_speed_ = ref_spd;
 
@@ -92,15 +92,14 @@ void Motor::SpeedControl(float ref_spd)
   u_in = fabs(usum);
   if (u_in > 255)
     u_in = 255;
-
   prev = constrain(usum, -255, 255);
-
   analogWrite(M_PWM_, u_in);
+  Serial.println(u_in);
 }
 
 void Motor::EncoderCounter()
 {
-  Serial.print("mA_speed = ");
+  Serial.print("Encoder counter = ");
   Serial.println(enPos_);
 }
 
